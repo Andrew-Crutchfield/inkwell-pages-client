@@ -1,26 +1,22 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useState, useEffect } from 'react';
+import { GET } from './services/fetcher';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
-}
+interface AppProps {}
+
+const App: React.FC<AppProps> = () => {
+    const [data, setData] = useState<any>(null);
+
+    useEffect(() => {
+        GET('/api/books').then(setData);
+    }, []);
+
+    return (
+        <div className="mx-auto mt-5 w-25">
+            <div className="alert alert-info text-center">
+                <pre>{JSON.stringify(data, null, 2)}</pre>
+            </div>
+        </div>
+    );
+};
 
 export default App;
