@@ -1,64 +1,44 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import bcrypt from 'bcryptjs'; // Import bcryptjs library
+import { POST } from '../services/fetcher';
 
-interface HomeProps {}
 
-const Home: React.FC<HomeProps> = () => {
+interface AuthResponse {
+  token: string;
+  message: string;
+}
+
+const HomePage: React.FC = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
 
-  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const handleLogin = async () => {
     try {
-      const usersResponse = await fetch('/data/users.json');
-      console.log("usersResponse");
-      console.log(usersResponse);
-      const usersData = await usersResponse.json();
-      console.log("usersData");
-      console.log(usersData);
-      const users = usersData.users;
-      console.log("users");
-      console.log(users);
-
-      const user = users.find((u: any) => u.email === email);
-
-      console.log("found user = " + user);
-
-      if (user && bcrypt.compareSync(password, user.password)) { // Compare hashed password
-        localStorage.setItem('token', user.token);
+      const response = await POST<AuthResponse>('/api/auth/login', { email, password });
+      if (response.token) {
+        localStorage.setItem('token', response.token);
         navigate('/bookdetails');
       } else {
-        setErrorMessage('Invalid email or password');
+        setErrorMessage(response.message || 'Failed to log in');
       }
     } catch (error) {
       console.error('Login failed', error);
-      setErrorMessage('Login failed due to an unexpected error');
+      if (error instanceof Error) {
+        setErrorMessage(error.message || 'Login failed due to an unexpected error');
+      } else {
+        setErrorMessage('Login failed due to an unexpected error');
+      }
     }
   };
 
   const handleRegister = async () => {
     try {
-      // Hash the password before sending to the server
-      const hashedPassword = bcrypt.hashSync(password, 10);
-
-      const response = await fetch('/auth/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password: hashedPassword }), // Send hashed password
-      });
-      if (response.ok) {
-        const data = await response.json();
-        if (data.token) {
-          localStorage.setItem('token', data.token);
-          navigate('/bookdetails');
-        } else {
-          setErrorMessage('Failed to register');
-        }
+      const response = await POST<AuthResponse>('/auth/register', { email, password });
+      if (response.token) {
+        localStorage.setItem('token', response.token);
+        navigate('/bookdetails');
       } else {
         setErrorMessage('Failed to register');
       }
@@ -70,29 +50,25 @@ const Home: React.FC<HomeProps> = () => {
 
   return (
     <div>
-      <h1>Welcome to Our Home Page</h1>
+      <h1>Welcome to Our HomePage</h1>
       <div>Login or Register to Continue</div>
       {errorMessage && <div style={{ color: 'red' }}>{errorMessage}</div>}
-      <form onSubmit={handleLogin}>
-        <label>Email: </label>
-        <input
-          type="text"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-        <label>Password: </label>
-        <input
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-        <button type="submit">Login</button>
-        <button type="button" onClick={handleRegister}>
-          Register
-        </button>
-      </form>
+      <label>Email: </label>
+      <input
+        type="text"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+      />
+      <label>Password: </label>
+      <input
+        type="password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+      />
+      <button onClick={handleLogin}>Login</button>
+      <button onClick={handleRegister}>Register</button>
     </div>
   );
 };
 
-export default Home;
+export default HomePage;
