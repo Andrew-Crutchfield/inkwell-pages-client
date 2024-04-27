@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { GET } from './services/fetcher';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 interface AppProps {}
 

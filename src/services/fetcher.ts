@@ -21,7 +21,9 @@ async function fetcher<T>(url: string, method: ValidMethods = 'GET', rawData?: a
   }
 
   try {
-    const apiUrl = process.env.SERVER_URL || 'http://localhost:3000';
+    // const apiUrl = process.env.SERVER_URL;
+    const apiUrl = 'https://inkwell-pages-f33008541df5.herokuapp.com';
+    console.log(`FETCHING FROM ${apiUrl}/${url}`);
     const res = await fetch(apiUrl + url, options);
 
     if (!res.ok) {
