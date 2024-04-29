@@ -1,29 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { GET, POST, PUT, DELETE } from '../services/fetcher';
+import { Book, Category } from '../types/types';
 
-interface Book {
-  id: number;
-  title: string;
-  author: string;
-  price?: number;
-  categoryid: number;
-}
-
-interface Category {
-  id: number;
-  name: string;
-}
 
 const BookListing: React.FC = () => {
   const [books, setBooks] = useState<Book[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
-  const [newBook, setNewBook] = useState({ title: '', author: '', price: '', categoryid: '' });
+  const [newBook, setNewBook] = useState({ title: '', author: '', price: '', categoryId: '' });
   const [editingBook, setEditingBook] = useState<Book | null>(null);
 
   const fetchBooks = async () => {
+    console.log("fetchBooks()");
     try {
       const response = await GET<{ books: Book[] }>('/api/books');
+      console.log(response.books);
       setBooks(response.books);
       const categoriesResponse = await GET<{ categories: Category[] }>('/api/categories');
       setCategories(categoriesResponse.categories);
@@ -42,10 +33,10 @@ const BookListing: React.FC = () => {
         title: newBook.title,
         author: newBook.author,
         price: newBook.price ? parseFloat(newBook.price) : undefined,
-        categoryid: parseInt(newBook.categoryid),
+        categoryid: parseInt(newBook.categoryId),
       };
       await POST<Book>('/api/books', bookData);
-      setNewBook({ title: '', author: '', price: '', categoryid: '' });
+      setNewBook({ title: '', author: '', price: '', categoryId: '' });
       await fetchBooks();
     } catch (error) {
       console.error('Error adding book', error);
@@ -55,15 +46,12 @@ const BookListing: React.FC = () => {
   const handleEditBook = async () => {
     if (editingBook) {
       try {
-        const editedBookData = {
-          title: newBook.title,
-          author: newBook.author,
-          price: newBook.price ? parseFloat(newBook.price) : undefined,
-          categoryid: parseInt(newBook.categoryid),
-        };
-        await PUT<Book>(`/api/books/${editingBook.id}`, editedBookData);
+        console.log("handleEditBook");
+        console.log(editingBook);
+        console.log(newBook);
+        await PUT<Book>(`/api/books/${editingBook.id}`, newBook);
         setEditingBook(null);
-        setNewBook({ title: '', author: '', price: '', categoryid: '' });
+        // setNewBook({ title: '', author: '', price: '', categoryId: '' });
         await fetchBooks();
       } catch (error) {
         console.error('Error editing book', error);
@@ -72,18 +60,20 @@ const BookListing: React.FC = () => {
   };
 
   const handleStartEditing = (book: Book) => {
+    console.log("handleStartEditing");
+    console.log(book);
     setEditingBook(book);
     setNewBook({
       title: book.title,
       author: book.author,
       price: book.price ? String(book.price) : '',
-      categoryid: String(book.categoryid),
+      categoryId: String(book.categoryId),
     });
   };
 
   const handleCancelEditing = () => {
     setEditingBook(null);
-    setNewBook({ title: '', author: '', price: '', categoryid: '' });
+    setNewBook({ title: '', author: '', price: '', categoryId: '' });
   };
 
   const handleDeleteBook = async (id: number) => {
@@ -125,8 +115,8 @@ const BookListing: React.FC = () => {
         onChange={(e) => setNewBook({ ...newBook, price: e.target.value })}
       />
       <select
-        value={newBook.categoryid}
-        onChange={(e) => setNewBook({ ...newBook, categoryid: e.target.value })}
+        value={newBook.categoryId}
+        onChange={(e) => setNewBook({ ...newBook, categoryId: e.target.value })}
       >
         <option value="">Select Category</option>
         {categories.map((category) => (
@@ -137,8 +127,8 @@ const BookListing: React.FC = () => {
       </select>
       {editingBook ? (
         <>
-          <button onClick={handleEditBook}>Save Edit</button>
-          <button onClick={handleCancelEditing}>Cancel Edit</button>
+          <button onClick={handleEditBook}>Save</button>
+          <button onClick={handleCancelEditing}>Cancel</button>
         </>
       ) : (
         <button onClick={handleAddBook}>Add Book</button>
@@ -152,7 +142,7 @@ const BookListing: React.FC = () => {
               <h3>{book.title}</h3>
               <p>Author: {book.author}</p>
               <p>Price: ${book.price}</p>
-              <p>Category: {getCategoryName(book.categoryid)}</p>
+              <p>Category: {getCategoryName(book.categoryId)}</p>
             </div>
             <div>
               <button onClick={() => handleStartEditing(book)}>Edit</button>

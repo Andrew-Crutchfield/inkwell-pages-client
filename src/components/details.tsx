@@ -1,19 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { GET } from '../services/fetcher';
+import { Book, Category } from '../types/types';
 
-interface Book {
-  id: number;
-  title: string;
-  author: string;
-  price: number;
-  categoryid: number;
-}
-
-interface Category {
-  id: number;
-  name: string;
-}
 
 const BookDetails: React.FC = () => {
   const [books, setBooks] = useState<Book[]>([]);
@@ -57,7 +46,7 @@ const BookDetails: React.FC = () => {
               <h2>{book.title}</h2>
               <p>Author: {book.author}</p>
               <p>Price: ${book.price}</p>
-              <p>Category: {getCategoryName(book.categoryid)}</p>
+              <p>Category: {getCategoryName(book.categoryId)}</p>
             </div>
           ))}
         </div>

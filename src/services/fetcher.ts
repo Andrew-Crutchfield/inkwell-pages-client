@@ -23,6 +23,7 @@ async function fetcher<T>(url: string, method: ValidMethods = 'GET', rawData?: a
   try {
     // const apiUrl = process.env.SERVER_URL;
     const apiUrl = 'https://inkwell-pages-f33008541df5.herokuapp.com';
+    // const apiUrl = 'http://localhost:3000';
     console.log(`FETCHING FROM ${apiUrl}/${url}`);
     const res = await fetch(apiUrl + url, options);
 
