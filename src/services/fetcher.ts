@@ -43,7 +43,9 @@ async function fetcher<T>(url: string, method: ValidMethods = 'GET', rawData?: a
       throw new Error(errorData.message || 'Request failed');
     }
 
-    return res.json() as Promise<T>;
+    const responseData = await res.json();
+    console.log(`Response from ${url}:`, responseData);
+    return responseData as T;
   } catch (error) {
     const err = error as Error;
     console.error(`Network error during request to ${url}`);
